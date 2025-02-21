@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -12,6 +12,7 @@
     "@callstack/react-theme-provider": "^3.0.9",
     "@expo/metro-runtime": "~4.0.1",
     "@hookform/resolvers": "^4.1.0",
+    "@react-navigation/drawer": "^7.1.1",
     "expo": "~52.0.37",
     "expo-linear-gradient": "^14.0.2",
     "expo-router": "^4.0.17",
@@ -20,6 +21,8 @@
     "react-dom": "18.3.1",
     "react-hook-form": "^7.54.2",
     "react-native": "0.76.7",
+    "react-native-gesture-handler": "~2.20.2",
+    "react-native-reanimated": "~3.16.1",
     "react-native-web": "~0.19.13",
     "yup": "^1.6.1"
   },
