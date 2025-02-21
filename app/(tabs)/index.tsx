@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 10,
         marginVertical : 15,
-        marginHorizontal : 4
+        marginHorizontal : 5
     },
     dateText: {
         fontSize: 16,
