@@ -23,12 +23,23 @@ export default function Tab() {
     const [amount, setAmount] = useState("");
     const [selectedDate, setSelectedDate] = useState(new Date());
 
+     function setTotals(){
+       let totalIncomeValue  = 0 ;
+       let totalExpensesValue  = 0 ;
+       myExpenses.map((expense : ExpensesModel) =>{
+           if (expense.type === 'income'){
+               totalIncomeValue += Number(expense.amount);
+           }else {
+               totalExpensesValue += Number(expense.amount);
+           }
+       })
+        setTotalIncome(totalIncomeValue);
+        setTotalExpenses(totalExpensesValue);
+        setBalance(totalIncomeValue - totalExpensesValue);
+    }
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
-    let expenses = [
-        {name: 'Salary', amount: 25000, icon: 'wallet' , type : 'expenses'},
-    ];
     const categories = {
         expenses: [
             {name: "Food", icon: "rest"},
@@ -80,8 +91,10 @@ export default function Tab() {
 
     useEffect(() => {
         // @ts-ignore
-        dispatch(addExpense(expenses[0]))
+        // dispatch(addExpense(expenses[0]))
         let newLocations = [0];
+        let totalIncome = 0;
+        setTotals()
 
         if (balance > 0) {
             let blueEnd = 0.9
@@ -97,7 +110,7 @@ export default function Tab() {
 
         setLocations(newLocations);
 
-    }, [balance]);
+    }, [myExpenses]);
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
@@ -110,7 +123,7 @@ export default function Tab() {
                     <View style={styles.incomeExpense}>
                         <View style={[styles.income, styles.incomeExpenseSide]}>
                             <Text style={styles.incomeExpenseLabel}>Income</Text>
-                            <Text style={styles.amount}>0.00</Text>
+                            <Text style={styles.amount}>{totalIncome}</Text>
                             <TouchableOpacity style={styles.detailsButton}>
                                 <Text style={styles.detailsButtonText}>Details</Text>
                             </TouchableOpacity>
@@ -118,7 +131,7 @@ export default function Tab() {
 
                         <View style={[styles.expense, styles.incomeExpenseSide]}>
                             <Text style={styles.incomeExpenseLabel}>Expenses</Text>
-                            <Text style={styles.amount}>0.00</Text>
+                            <Text style={styles.amount}>{totalExpenses}</Text>
                             <TouchableOpacity style={styles.detailsButton}>
                                 <Text style={styles.detailsButtonText}>Details</Text>
                             </TouchableOpacity>
@@ -127,7 +140,7 @@ export default function Tab() {
 
                     <View style={styles.balance}>
                         <Text style={styles.balanceLabel}>Balance</Text>
-                        <Text style={styles.amount}>0</Text>
+                        <Text style={styles.amount}>{balance}</Text>
                     </View>
                 </LinearGradient>
 
@@ -262,9 +275,10 @@ export default function Tab() {
                                     <Text style={styles.keyText}>{key === "del" ? "⌫" : key}</Text>
                                 </TouchableOpacity>
                             ))}
-                            <TouchableOpacity style={styles.actionKey} onPress={() => {
+                            <TouchableOpacity style={styles.actionKey} onPress={async () => {
                                 setKeyBoardOpen(false)
-                                dispatch(addExpense(new ExpensesModel("1",selectedCategory.name,amount,selectedDate,selectedCategory.icon,selectedTab)));
+                                const  model = new ExpensesModel("1",selectedCategory.name,amount,new Date().toString(),selectedCategory.icon,selectedTab);
+                                dispatch(addExpense(model));
                             }}>
                                 <Text style={styles.actionText}>✔</Text>
                             </TouchableOpacity>
