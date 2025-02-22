@@ -21,7 +21,6 @@ export default function Tab() {
     const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
     const [isKeyBoardOpen, setKeyBoardOpen] = useState(false);
     const [amount, setAmount] = useState("");
-    const [selectedDate, setSelectedDate] = useState(new Date());
 
      function setTotals(){
        let totalIncomeValue  = 0 ;
@@ -180,10 +179,8 @@ export default function Tab() {
             >
                 <SafeAreaView style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        {/* Header */}
                         <Text style={styles.title}>Add</Text>
 
-                        {/* Tabs */}
                         <View style={styles.tabContainer}>
                             <TouchableOpacity
                                 style={[styles.tab, selectedTab === "expenses" && styles.activeTab]}
@@ -203,7 +200,6 @@ export default function Tab() {
                             </TouchableOpacity>
                         </View>
 
-                        {/* Categories Grid */}
                         <FlatList
                             data={categories[selectedTab]}
                             keyExtractor={(item) => item.name}
@@ -232,8 +228,6 @@ export default function Tab() {
                                 );
                             }}
                         />
-
-                        {/* Close Button */}
                         <TouchableOpacity style={styles.closeButton} onPress={toggleModal}>
                             <Text style={styles.closeButtonText}>Close</Text>
                         </TouchableOpacity>
@@ -244,7 +238,6 @@ export default function Tab() {
             <Modal visible={isKeyBoardOpen} animationType="slide" transparent>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer1}>
-                        {/* Selected Category */}
 
                         {selectedCategory &&
                             <View style={styles.header1}>
@@ -256,14 +249,11 @@ export default function Tab() {
                             </View>
                         }
 
-
-                        {/* Date Picker */}
                         <View style={styles.dateContainer}>
                             <Text style={styles.dateText1}>Today</Text>
-                            <Text style={styles.dateSubText}>{format(selectedDate, "M/d")}</Text>
+                            <Text style={styles.dateSubText}>{format(new Date(), "M/d")}</Text>
                         </View>
 
-                        {/* Numeric Keypad */}
                         <View style={styles.keyboard}>
                             {[
                                 "7", "8", "9",
