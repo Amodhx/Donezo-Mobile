@@ -7,7 +7,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {format} from "date-fns";
 import {useDispatch, useSelector} from "react-redux";
 import ExpensesModel from "../../model/ExpensesModel";
-import {addExpense, updateExpense} from "../../slices/ExpensesSlices";
+import {addExpense, deleteExpense, updateExpense} from "../../slices/ExpensesSlices";
 
 export default function Tab() {
     const myExpenses: ExpensesModel[] = useSelector((state: any) => state.expenses);
@@ -302,7 +302,12 @@ export default function Tab() {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer2}>
                         {/* Delete Icon */}
-                        <TouchableOpacity style={styles.deleteIcon}>
+                        <TouchableOpacity style={styles.deleteIcon} onPress={()=>{
+                            // @ts-ignore
+                            dispatch(deleteExpense(new ExpensesModel(selectedExpense?.expense_id,'','','','','')));
+                            console.log(myExpenses)
+                            setUpdateModalVisible(false)
+                        }}>
                             <AntDesign name="delete" size={24} color="red" />
                         </TouchableOpacity>
 
