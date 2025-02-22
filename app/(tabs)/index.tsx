@@ -3,26 +3,15 @@ import {LinearGradient} from 'expo-linear-gradient';
 import {useEffect, useState} from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {AntDesign} from "@expo/vector-icons";
-import {StatusBar} from "expo-status-bar";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {format} from "date-fns";
-import {number} from "yup";
+import {useDispatch, useSelector} from "react-redux";
+import ExpensesModel from "../../model/ExpensesModel";
+import {addExpense} from "../../slices/ExpensesSlices";
 
-// @ts-ignore
-const ExpenseItem = ({expense}) => (
-    <View style={styles.expenseItem}>
-        <View style={styles.iconContainer}>
-            {expense.icon ? (
-                <Image source={expense.icon} style={styles.icon}/>
-            ) : (
-                <View style={styles.placeholderIcon}/>
-            )}
-        </View>
-        <Text style={styles.expenseName}>{expense.name}</Text>
-        <Text style={styles.expenseAmount}>{0}</Text>
-    </View>
-);
 export default function Tab() {
+    const myExpenses : ExpensesModel[] = useSelector((state:any) =>state.expenses);
+    const dispatch = useDispatch();
     const [balance, setBalance] = useState(0);
     const [locations, setLocations] = useState([0, 0.7]);
     const [totalIncome, setTotalIncome] = useState(0);
@@ -37,9 +26,8 @@ export default function Tab() {
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
-    const [myExpenses,setMyExpenses] = useState([])
     let expenses = [
-        {name: 'Salary', amount: 25000, icon: 'wallet'},
+        {name: 'Salary', amount: 25000, icon: 'wallet' , type : 'expenses'},
     ];
     const categories = {
         expenses: [
@@ -92,7 +80,7 @@ export default function Tab() {
 
     useEffect(() => {
         // @ts-ignore
-        setMyExpenses([...expenses])
+        dispatch(addExpense(expenses[0]))
         let newLocations = [0];
 
         if (balance > 0) {
@@ -154,7 +142,7 @@ export default function Tab() {
                     <View key={index} style={styles.expenseItem}>
                         <View style={styles.iconContainer}>
                             {expense.icon ? (
-                                <AntDesign name={expense.icon as any} size={28} color="blue"/>
+                                <AntDesign name={expense.icon as any} size={28} color={expense.type == 'expenses' ? 'red' : 'blue'}/>
                             ) : (
                                 <View style={styles.placeholderIcon}/>
                             )}
@@ -220,7 +208,6 @@ export default function Tab() {
                                             setSelectedCategory(item);
                                             setKeyBoardOpen(true)
                                             toggleModal()
-                                            console.log(`Selected Category: ${item.name}`);
                                         }}
                                     >
                                         <AntDesign name={item.icon as any} size={28}
@@ -277,10 +264,7 @@ export default function Tab() {
                             ))}
                             <TouchableOpacity style={styles.actionKey} onPress={() => {
                                 setKeyBoardOpen(false)
-                                console.log(myExpenses[myExpenses.length - 1])
-                                expenses.push({name: selectedCategory.name , amount: Number(amount), icon: selectedCategory.icon})
-                                // @ts-ignore
-                                setMyExpenses([...expenses])
+                                dispatch(addExpense(new ExpensesModel("1",selectedCategory.name,amount,selectedDate,selectedCategory.icon,selectedTab)));
                             }}>
                                 <Text style={styles.actionText}>✔</Text>
                             </TouchableOpacity>
