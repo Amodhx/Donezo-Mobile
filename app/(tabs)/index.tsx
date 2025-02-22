@@ -1,25 +1,25 @@
 import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {useEffect, useState} from "react";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 // @ts-ignore
 const ExpenseItem = ({expense}) => (
     <View style={styles.expenseItem}>
         <View style={styles.iconContainer}>
-            {/* Render icon from data */}
-            {expense.icon ? ( // Check if icon exists in data
+            {expense.icon ? (
                 <Image source={expense.icon} style={styles.icon}/>
             ) : (
-                <View style={styles.placeholderIcon}/> // Placeholder if no icon
+                <View style={styles.placeholderIcon}/>
             )}
         </View>
         <Text style={styles.expenseName}>{expense.name}</Text>
-        <Text style={styles.expenseAmount}>{expense.amount}</Text>
+        <Text style={styles.expenseAmount}>{0}</Text>
     </View>
 );
 export default function Tab() {
-    const [balance, setBalance] = useState(0); // Example balance (can be from props or state)
-    const [locations, setLocations] = useState([0, 0.7]); // Initial locations
+    const [balance, setBalance] = useState(0);
+    const [locations, setLocations] = useState([0, 0.7]);
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpenses, setTotalExpenses] = useState(0);
     const myExpenses = [
@@ -55,8 +55,8 @@ export default function Tab() {
 
     }, [balance]);
     return (
-        <ScrollView style={styles.scrollView}> {/* Wrap expenses in ScrollView */}
             <View style={styles.container}>
+                <ScrollView style={styles.scrollView}>
                 <LinearGradient
                     colors={['#438EFF', '#FD5454']}
                     locations={locations as [number, number]}
@@ -90,15 +90,19 @@ export default function Tab() {
                 <View style={styles.header}>
                     <Text style={styles.dateText}>02/21 Fri</Text>
                     <View style={styles.totalsContainer}>
-                        <Text style={styles.incomeText}>⬆ {totalIncome.toFixed(2)}</Text>
-                        <Text style={styles.expenseText}>⬇ {totalExpenses.toFixed(2)}</Text>
+                        <Text style={styles.incomeText}>⬆ {totalIncome.toFixed(2).toString()}</Text>
+                        <Text style={styles.expenseText}>⬇ {totalExpenses.toFixed(2).toString()}</Text>
                     </View>
                 </View>
                 {myExpenses.map((expense, index) => (
                     <ExpenseItem key={index} expense={expense}/>
                 ))}
+                </ScrollView>
+                <TouchableOpacity style={styles.plusButton} activeOpacity={0.7}>
+                    <FontAwesome name="plus" size={30} color="white" />
+                </TouchableOpacity>
             </View>
-        </ScrollView>
+
 
     );
 }
@@ -130,15 +134,15 @@ const styles = StyleSheet.create({
     },
 
     plusButton: {
-        position: 'absolute',  // Fixed position
-        bottom: 20,          // Adjust from bottom
-        right: 20,           // Adjust from right
-        borderRadius: 30,    // Make it round
-        width: 60,           // Adjust size
-        height: 60,          // Adjust size
-        backgroundColor: 'yellow', // Or use an image background
-        elevation: 5,        // For Android shadow
-        shadowColor: '#000', // For iOS shadow
+        position: 'absolute',
+        bottom: '8%',
+        right : '46%',
+        borderRadius: 30,
+        width: 60,
+        height: 60,
+        backgroundColor: 'yellow',
+        elevation: 5,
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
@@ -146,9 +150,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     plusIcon: {
-        width: 30,         // Adjust icon size
-        height: 30,        // Adjust icon size
-        resizeMode: 'contain', // Or 'cover'
+        width: 30,
+        height: 30,
+        resizeMode: 'contain',
     },
     container: {
         flex: 1,
@@ -186,14 +190,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 16,
         overflow: 'hidden',
-        marginLeft: 5// To ensure the image fits within the circle
+        marginLeft: 5
     },
     icon: {
         width: '100%',
         height: '100%',
-        resizeMode: 'contain', // Or 'cover' depending on your needs
+        resizeMode: 'contain'
     },
-    placeholderIcon: {  // Style for the placeholder
+    placeholderIcon: {
         width: 24,
         height: 24,
         borderRadius: 12,
@@ -207,8 +211,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 16,
         margin: 16,
-        elevation: 3, // For Android shadow
-        shadowColor: '#000', // For iOS shadow
+        elevation: 3,
+        shadowColor: '#000',
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 4,

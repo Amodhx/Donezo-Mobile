@@ -14,6 +14,9 @@ const LoginForm: React.FC = () => {
         router.replace("/(tabs)");
     };
 
+    const handleSignUp = ()=>{
+        router.replace("/SignUp");
+    }
     return (
         <LinearGradient colors={["#6a11cb", "#2575fc"]} style={styles.container}>
             <View style={styles.form}>
@@ -51,7 +54,7 @@ const LoginForm: React.FC = () => {
 
                 <TouchableOpacity>
                     <Text style={styles.signupText}>
-                        Don't have an account? <Text style={styles.signupLink}>Sign up</Text>
+                        Don't have an account? <Text onPress={handleSignUp} style={styles.signupLink}>Sign up</Text>
                     </Text>
                 </TouchableOpacity>
             </View>
