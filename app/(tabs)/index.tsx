@@ -1,7 +1,10 @@
-import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, FlatList,Modal} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {useEffect, useState} from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { AntDesign } from "@expo/vector-icons";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // @ts-ignore
 const ExpenseItem = ({expense}) => (
@@ -22,6 +25,12 @@ export default function Tab() {
     const [locations, setLocations] = useState([0, 0.7]);
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpenses, setTotalExpenses] = useState(0);
+    const [isModalVisible, setModalVisible] = useState<boolean>(false);
+    const [selectedTab, setSelectedTab] = useState<"expenses" | "income">("expenses");
+
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
     const myExpenses = [
         {name: 'Salary', amount: 25000, type: 'Salary'},
         {name: 'Food', amount: -500, type: 'Food'},
@@ -35,6 +44,47 @@ export default function Tab() {
         {name: 'Food', amount: -500, type: 'Food'},
         {name: 'Food', amount: -500, type: 'Food'},
     ];
+    const categories = {
+        expenses: [
+            { name: "Food", icon: "rest" },
+            { name: "Bills", icon: "creditcard" },
+            { name: "Transportation", icon: "car" },
+            { name: "Home", icon: "home" },
+            { name: "Car", icon: "car" },
+            { name: "Entertainment", icon: "videocamera" },
+            { name: "Shopping", icon: "shoppingcart" },
+            { name: "Clothing", icon: "tago" },
+            { name: "Insurance", icon: "Safety" },
+            { name: "Tax", icon: "filetext1" },
+            { name: "Telephone", icon: "phone" },
+            { name: "Cigarette", icon: "smileo" },
+            { name: "Health", icon: "hearto" },
+            { name: "Sport", icon: "Trophy" },
+            { name: "Baby", icon: "smileo" },
+            { name: "Pet", icon: "github" },
+            { name: "Beauty", icon: "skin" },
+            { name: "Electronics", icon: "tablet1" },
+            { name: "Hamburger", icon: "rest" },
+            { name: "Wine", icon: "gift" },
+            { name: "Vegetables", icon: "shoppingcart" },
+            { name: "Snacks", icon: "gift" },
+            { name: "Gift", icon: "gift" },
+            { name: "Social", icon: "team" },
+        ],
+        income: [
+            { name: "Salary", icon: "wallet" },
+            { name: "Awards", icon: "Trophy" },
+            { name: "Grants", icon: "book" },
+            { name: "Sale", icon: "tag" },
+            { name: "Rental", icon: "home" },
+            { name: "Refunds", icon: "retweet" },
+            { name: "Coupons", icon: "gift" },
+            { name: "Lottery", icon: "gift" },
+            { name: "Dividends", icon: "linechart" },
+            { name: "Investments", icon: "bank" },
+            { name: "Others", icon: "appstore-o" },
+        ],
+    };
 
     useEffect(() => {
         let newLocations = [0];
@@ -98,9 +148,65 @@ export default function Tab() {
                     <ExpenseItem key={index} expense={expense}/>
                 ))}
                 </ScrollView>
-                <TouchableOpacity style={styles.plusButton} activeOpacity={0.7}>
+                <TouchableOpacity
+                    style={styles.plusButton}
+                    activeOpacity={0.7}
+                    onPress={() => setModalVisible(true)}
+                >
                     <FontAwesome name="plus" size={30} color="white" />
                 </TouchableOpacity>
+
+                <Modal
+                    visible={isModalVisible}
+                    style={styles.modalView}
+                    animationType={"slide"}
+                >
+                    <SafeAreaView style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            {/* Header */}
+                            <Text style={styles.title}>Add</Text>
+
+                            {/* Tabs */}
+                            <View style={styles.tabContainer}>
+                                <TouchableOpacity
+                                    style={[styles.tab, selectedTab === "expenses" && styles.activeTab]}
+                                    onPress={() => setSelectedTab("expenses")}
+                                >
+                                    <Text style={[styles.tabText, selectedTab === "expenses" && styles.activeTabText]}>
+                                        Expenses
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.tab, selectedTab === "income" && styles.activeTab]}
+                                    onPress={() => setSelectedTab("income")}
+                                >
+                                    <Text style={[styles.tabText, selectedTab === "income" && styles.activeTabText]}>
+                                        Income
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* Categories Grid */}
+                            <FlatList
+                                data={categories[selectedTab]}
+                                keyExtractor={(item) => item.name}
+                                numColumns={4}
+                                contentContainerStyle={styles.gridContainer}
+                                renderItem={({ item }) => (
+                                    <View style={styles.categoryItem}>
+                                        <AntDesign name={item.icon as any} size={28} color="gray" />
+                                        <Text style={styles.categoryText}>{item.name}</Text>
+                                    </View>
+                                )}
+                            />
+
+                            {/* Close Button */}
+                            <TouchableOpacity style={styles.closeButton} onPress={toggleModal}>
+                                <Text style={styles.closeButtonText}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </SafeAreaView>
+                </Modal>
             </View>
 
 
@@ -271,5 +377,84 @@ const styles = StyleSheet.create({
     amount: {
         fontSize: 20,
         fontWeight: 'bold',
+    },
+    modalView: {
+        justifyContent: "flex-end",
+        margin: 0,
+    },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+        position : 'relative',
+        bottom : -25
+    },
+    modalContent: {
+        width: "100%",
+        height : '95%',
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        alignItems: "center",
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: "bold",
+        marginBottom: 15,
+    },
+    tabContainer: {
+        flexDirection: "row",
+        backgroundColor: "#E5E5E5",
+        borderRadius: 20,
+        padding: 4,
+        marginBottom: 15,
+    },
+    tab: {
+        flex: 1,
+        alignItems: "center",
+        paddingVertical: 10,
+        borderRadius: 20,
+    },
+    activeTab: {
+        backgroundColor: "#ff6666",
+    },
+    tabText: {
+        fontSize: 16,
+        color: "gray",
+    },
+    activeTabText: {
+        color: "white",
+        fontWeight: "bold",
+    },
+    gridContainer: {
+        paddingVertical: 10,
+    },
+    categoryItem: {
+        width: 80,
+        height: 80,
+        justifyContent: "center",
+        alignItems: "center",
+        margin: 8,
+        backgroundColor: "#F2F2F2",
+        borderRadius: 10,
+    },
+    categoryText: {
+        marginTop: 5,
+        fontSize: 12,
+        textAlign: "center",
+        color: "gray",
+    },
+    closeButton: {
+        marginTop: 15,
+        backgroundColor: "#ff6666",
+        paddingVertical: 10,
+        paddingHorizontal: 30,
+        borderRadius: 10,
+    },
+    closeButtonText: {
+        color: "white",
+        fontWeight: "bold",
+        fontSize: 16,
     },
 });
