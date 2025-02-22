@@ -13,6 +13,7 @@
     "@expo/metro-runtime": "~4.0.1",
     "@hookform/resolvers": "^4.1.0",
     "@react-navigation/drawer": "^7.1.1",
+    "date-fns": "^4.1.0",
     "expo": "~52.0.37",
     "expo-linear-gradient": "^14.0.2",
     "expo-router": "^4.0.17",

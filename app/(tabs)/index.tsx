@@ -1,10 +1,12 @@
-import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, FlatList,Modal} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, FlatList, Modal} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {useEffect, useState} from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { AntDesign } from "@expo/vector-icons";
-import { StatusBar } from "expo-status-bar";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {AntDesign} from "@expo/vector-icons";
+import {StatusBar} from "expo-status-bar";
+import {SafeAreaView} from "react-native-safe-area-context";
+import {format} from "date-fns";
+import {number} from "yup";
 
 // @ts-ignore
 const ExpenseItem = ({expense}) => (
@@ -27,66 +29,70 @@ export default function Tab() {
     const [totalExpenses, setTotalExpenses] = useState(0);
     const [isModalVisible, setModalVisible] = useState<boolean>(false);
     const [selectedTab, setSelectedTab] = useState<"expenses" | "income">("expenses");
+    const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
+    const [isKeyBoardOpen, setKeyBoardOpen] = useState(false);
+    const [amount, setAmount] = useState("");
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
-    const myExpenses = [
-        {name: 'Salary', amount: 25000, type: 'Salary'},
-        {name: 'Food', amount: -500, type: 'Food'},
-        {name: 'Food', amount: -500, type: 'Food'},
-        {name: 'Food', amount: -500, type: 'Food'},
-        {name: 'Food', amount: -500, type: 'Food'},
-        {name: 'Food', amount: -500, type: 'Food'},
-        {name: 'Food', amount: -500, type: 'Food'},
-        {name: 'Food', amount: -500, type: 'Food'},
-        {name: 'Food', amount: -500, type: 'Food'},
-        {name: 'Food', amount: -500, type: 'Food'},
-        {name: 'Food', amount: -500, type: 'Food'},
+    const [myExpenses,setMyExpenses] = useState([])
+    let expenses = [
+        {name: 'Salary', amount: 25000, icon: 'wallet'},
     ];
     const categories = {
         expenses: [
-            { name: "Food", icon: "rest" },
-            { name: "Bills", icon: "creditcard" },
-            { name: "Transportation", icon: "car" },
-            { name: "Home", icon: "home" },
-            { name: "Car", icon: "car" },
-            { name: "Entertainment", icon: "videocamera" },
-            { name: "Shopping", icon: "shoppingcart" },
-            { name: "Clothing", icon: "tago" },
-            { name: "Insurance", icon: "Safety" },
-            { name: "Tax", icon: "filetext1" },
-            { name: "Telephone", icon: "phone" },
-            { name: "Cigarette", icon: "smileo" },
-            { name: "Health", icon: "hearto" },
-            { name: "Sport", icon: "Trophy" },
-            { name: "Baby", icon: "smileo" },
-            { name: "Pet", icon: "github" },
-            { name: "Beauty", icon: "skin" },
-            { name: "Electronics", icon: "tablet1" },
-            { name: "Hamburger", icon: "rest" },
-            { name: "Wine", icon: "gift" },
-            { name: "Vegetables", icon: "shoppingcart" },
-            { name: "Snacks", icon: "gift" },
-            { name: "Gift", icon: "gift" },
-            { name: "Social", icon: "team" },
+            {name: "Food", icon: "rest"},
+            {name: "Bills", icon: "creditcard"},
+            {name: "Transportation", icon: "car"},
+            {name: "Home", icon: "home"},
+            {name: "Car", icon: "car"},
+            {name: "Entertainment", icon: "videocamera"},
+            {name: "Shopping", icon: "shoppingcart"},
+            {name: "Clothing", icon: "tago"},
+            {name: "Insurance", icon: "Safety"},
+            {name: "Tax", icon: "filetext1"},
+            {name: "Telephone", icon: "phone"},
+            {name: "Cigarette", icon: "smileo"},
+            {name: "Health", icon: "hearto"},
+            {name: "Sport", icon: "Trophy"},
+            {name: "Baby", icon: "smileo"},
+            {name: "Pet", icon: "github"},
+            {name: "Beauty", icon: "skin"},
+            {name: "Electronics", icon: "tablet1"},
+            {name: "Hamburger", icon: "rest"},
+            {name: "Wine", icon: "gift"},
+            {name: "Vegetables", icon: "shoppingcart"},
+            {name: "Snacks", icon: "gift"},
+            {name: "Gift", icon: "gift"},
+            {name: "Social", icon: "team"},
         ],
         income: [
-            { name: "Salary", icon: "wallet" },
-            { name: "Awards", icon: "Trophy" },
-            { name: "Grants", icon: "book" },
-            { name: "Sale", icon: "tag" },
-            { name: "Rental", icon: "home" },
-            { name: "Refunds", icon: "retweet" },
-            { name: "Coupons", icon: "gift" },
-            { name: "Lottery", icon: "gift" },
-            { name: "Dividends", icon: "linechart" },
-            { name: "Investments", icon: "bank" },
-            { name: "Others", icon: "appstore-o" },
+            {name: "Salary", icon: "wallet"},
+            {name: "Awards", icon: "Trophy"},
+            {name: "Grants", icon: "book"},
+            {name: "Sale", icon: "tag"},
+            {name: "Rental", icon: "home"},
+            {name: "Refunds", icon: "retweet"},
+            {name: "Coupons", icon: "gift"},
+            {name: "Lottery", icon: "gift"},
+            {name: "Dividends", icon: "linechart"},
+            {name: "Investments", icon: "bank"},
+            {name: "Others", icon: "appstore-o"},
         ],
+    };
+    const handlePress = (value: string) => {
+        if (value === "del") {
+            setAmount((prev) => prev.slice(0, -1));
+        } else {
+            setAmount((prev) => prev + value);
+        }
     };
 
     useEffect(() => {
+        // @ts-ignore
+        setMyExpenses([...expenses])
         let newLocations = [0];
 
         if (balance > 0) {
@@ -105,8 +111,8 @@ export default function Tab() {
 
     }, [balance]);
     return (
-            <View style={styles.container}>
-                <ScrollView style={styles.scrollView}>
+        <View style={styles.container}>
+            <ScrollView style={styles.scrollView}>
                 <LinearGradient
                     colors={['#438EFF', '#FD5454']}
                     locations={locations as [number, number]}
@@ -144,83 +150,228 @@ export default function Tab() {
                         <Text style={styles.expenseText}>⬇ {totalExpenses.toFixed(2).toString()}</Text>
                     </View>
                 </View>
-                {myExpenses.map((expense, index) => (
-                    <ExpenseItem key={index} expense={expense}/>
+                {myExpenses.map((expense:any,index:number) => (
+                    <View key={index} style={styles.expenseItem}>
+                        <View style={styles.iconContainer}>
+                            {expense.icon ? (
+                                <AntDesign name={expense.icon as any} size={28} color="blue"/>
+                            ) : (
+                                <View style={styles.placeholderIcon}/>
+                            )}
+                        </View>
+                        <Text style={styles.expenseName}>{expense.name}</Text>
+                        <Text style={styles.expenseAmount}>{expense.amount}</Text>
+                    </View>
                 ))}
-                </ScrollView>
-                <TouchableOpacity
-                    style={styles.plusButton}
-                    activeOpacity={0.7}
-                    onPress={() => setModalVisible(true)}
-                >
-                    <FontAwesome name="plus" size={30} color="white" />
-                </TouchableOpacity>
+            </ScrollView>
+            <TouchableOpacity
+                style={styles.plusButton}
+                activeOpacity={0.7}
+                onPress={() => setModalVisible(true)}
+            >
+                <FontAwesome name="plus" size={30} color="white"/>
+            </TouchableOpacity>
 
-                <Modal
-                    visible={isModalVisible}
-                    style={styles.modalView}
-                    animationType={"slide"}
-                >
-                    <SafeAreaView style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            {/* Header */}
-                            <Text style={styles.title}>Add</Text>
+            <Modal
+                visible={isModalVisible}
+                style={styles.modalView}
+                animationType={"slide"}
+            >
+                <SafeAreaView style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        {/* Header */}
+                        <Text style={styles.title}>Add</Text>
 
-                            {/* Tabs */}
-                            <View style={styles.tabContainer}>
-                                <TouchableOpacity
-                                    style={[styles.tab, selectedTab === "expenses" && styles.activeTab]}
-                                    onPress={() => setSelectedTab("expenses")}
-                                >
-                                    <Text style={[styles.tabText, selectedTab === "expenses" && styles.activeTabText]}>
-                                        Expenses
-                                    </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.tab, selectedTab === "income" && styles.activeTab]}
-                                    onPress={() => setSelectedTab("income")}
-                                >
-                                    <Text style={[styles.tabText, selectedTab === "income" && styles.activeTabText]}>
-                                        Income
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            {/* Categories Grid */}
-                            <FlatList
-                                data={categories[selectedTab]}
-                                keyExtractor={(item) => item.name}
-                                numColumns={4}
-                                contentContainerStyle={styles.gridContainer}
-                                renderItem={({ item }) => (
-                                    <View style={styles.categoryItem}>
-                                        <AntDesign name={item.icon as any} size={28} color="gray" />
-                                        <Text style={styles.categoryText}>{item.name}</Text>
-                                    </View>
-                                )}
-                            />
-
-                            {/* Close Button */}
-                            <TouchableOpacity style={styles.closeButton} onPress={toggleModal}>
-                                <Text style={styles.closeButtonText}>Close</Text>
+                        {/* Tabs */}
+                        <View style={styles.tabContainer}>
+                            <TouchableOpacity
+                                style={[styles.tab, selectedTab === "expenses" && styles.activeTab]}
+                                onPress={() => setSelectedTab("expenses")}
+                            >
+                                <Text style={[styles.tabText, selectedTab === "expenses" && styles.activeTabText]}>
+                                    Expenses
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.tab, selectedTab === "income" && styles.activeTab]}
+                                onPress={() => setSelectedTab("income")}
+                            >
+                                <Text style={[styles.tabText, selectedTab === "income" && styles.activeTabText]}>
+                                    Income
+                                </Text>
                             </TouchableOpacity>
                         </View>
-                    </SafeAreaView>
-                </Modal>
-            </View>
+
+                        {/* Categories Grid */}
+                        <FlatList
+                            data={categories[selectedTab]}
+                            keyExtractor={(item) => item.name}
+                            numColumns={3}
+                            contentContainerStyle={styles.gridContainer}
+                            renderItem={({item}) => {
+                                const isSelected = selectedCategory === item.name;
+                                return (
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.categoryItem,
+                                            {backgroundColor: isSelected ? "lightblue" : "white"},
+                                        ]}
+                                        onPress={() => {
+                                            setSelectedCategory(item);
+                                            setKeyBoardOpen(true)
+                                            toggleModal()
+                                            console.log(`Selected Category: ${item.name}`);
+                                        }}
+                                    >
+                                        <AntDesign name={item.icon as any} size={28}
+                                                   color={isSelected ? "blue" : "gray"}/>
+                                        <Text style={[styles.categoryText, {color: isSelected ? "blue" : "black"}]}>
+                                            {item.name}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            }}
+                        />
+
+                        {/* Close Button */}
+                        <TouchableOpacity style={styles.closeButton} onPress={toggleModal}>
+                            <Text style={styles.closeButtonText}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </SafeAreaView>
+            </Modal>
+
+            <Modal visible={isKeyBoardOpen} animationType="slide" transparent>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer1}>
+                        {/* Selected Category */}
+
+                        {selectedCategory &&
+                            <View style={styles.header1}>
+                                <TouchableOpacity style={styles.categoryContainer}>
+                                    <AntDesign name={selectedCategory.icon} size={24} color="white"/>
+                                </TouchableOpacity>
+                                <Text style={styles.memoText}>{selectedCategory.name}</Text>
+                                <Text style={styles.amountText}>{amount || "0"}</Text>
+                            </View>
+                        }
 
 
-    );
+                        {/* Date Picker */}
+                        <View style={styles.dateContainer}>
+                            <Text style={styles.dateText1}>Today</Text>
+                            <Text style={styles.dateSubText}>{format(selectedDate, "M/d")}</Text>
+                        </View>
+
+                        {/* Numeric Keypad */}
+                        <View style={styles.keyboard}>
+                            {[
+                                "7", "8", "9",
+                                "4", "5", "6",
+                                "1", "2", "3",
+                                ".", "0", "del"
+                            ].map((key) => (
+                                <TouchableOpacity key={key} style={styles.key} onPress={() => handlePress(key)}>
+                                    <Text style={styles.keyText}>{key === "del" ? "⌫" : key}</Text>
+                                </TouchableOpacity>
+                            ))}
+                            <TouchableOpacity style={styles.actionKey} onPress={() => {
+                                setKeyBoardOpen(false)
+                                console.log(myExpenses[myExpenses.length - 1])
+                                expenses.push({name: selectedCategory.name , amount: Number(amount), icon: selectedCategory.icon})
+                                // @ts-ignore
+                                setMyExpenses([...expenses])
+                            }}>
+                                <Text style={styles.actionText}>✔</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+
+        </View>
+
+
+    )
+        ;
 }
 
 const styles = StyleSheet.create({
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "flex-end",
+    },
+    modalContainer1: {
+        backgroundColor: "#fff",
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+    header1: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 10,
+    },
+    categoryContainer: {
+        backgroundColor: "#FFB100",
+        padding: 10,
+        borderRadius: 50,
+    },
+    memoText: {
+        flex: 1,
+        textAlign: "center",
+        fontSize: 16,
+        color: "gray",
+    },
+    amountText: {
+        fontSize: 24,
+        fontWeight: "bold",
+    },
+    dateContainer: {
+        alignItems: "flex-end",
+        marginBottom: 10,
+    },
+    dateText1: {
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    dateSubText: {
+        color: "gray",
+    },
+    keyboard: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+    },
+    key: {
+        width: "30%",
+        padding: 15,
+        alignItems: "center",
+    },
+    keyText: {
+        fontSize: 24,
+        fontWeight: "bold",
+    },
+    actionKey: {
+        width: "30%",
+        backgroundColor: "#FFB100",
+        padding: 10,
+        alignItems: "center",
+    },
+    actionText: {
+        fontSize: 24,
+        fontWeight: "bold",
+        color: "white",
+    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 10,
-        marginVertical : 15,
-        marginHorizontal : 5
+        marginVertical: 15,
+        marginHorizontal: 5
     },
     dateText: {
         fontSize: 16,
@@ -242,14 +393,14 @@ const styles = StyleSheet.create({
     plusButton: {
         position: 'absolute',
         bottom: '8%',
-        right : '46%',
+        right: '46%',
         borderRadius: 30,
         width: 60,
         height: 60,
         backgroundColor: 'yellow',
         elevation: 5,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.3,
         shadowRadius: 4,
         justifyContent: 'center',
@@ -387,12 +538,12 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.5)",
         justifyContent: "center",
         alignItems: "center",
-        position : 'relative',
-        bottom : -25
+        position: 'relative',
+        bottom: -25
     },
     modalContent: {
         width: "100%",
-        height : '95%',
+        height: '95%',
         backgroundColor: "white",
         borderRadius: 20,
         padding: 20,
