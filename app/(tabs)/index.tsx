@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, FlatList, Modal} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, FlatList, Modal, TextInput} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {useEffect, useState} from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -10,7 +10,7 @@ import ExpensesModel from "../../model/ExpensesModel";
 import {addExpense} from "../../slices/ExpensesSlices";
 
 export default function Tab() {
-    const myExpenses : ExpensesModel[] = useSelector((state:any) =>state.expenses);
+    const myExpenses: ExpensesModel[] = useSelector((state: any) => state.expenses);
     const dispatch = useDispatch();
     const [balance, setBalance] = useState(0);
     const [locations, setLocations] = useState([0, 0.7]);
@@ -21,21 +21,27 @@ export default function Tab() {
     const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
     const [isKeyBoardOpen, setKeyBoardOpen] = useState(false);
     const [amount, setAmount] = useState("");
+    const [isUpdateModalVisible,setUpdateModalVisible] = useState<boolean>(false);
+    const [selectedExpense,setSelectedExpense] = useState<ExpensesModel | null>(null)
 
-     function setTotals(){
-       let totalIncomeValue  = 0 ;
-       let totalExpensesValue  = 0 ;
-       myExpenses.map((expense : ExpensesModel) =>{
-           if (expense.type === 'income'){
-               totalIncomeValue += Number(expense.amount);
-           }else {
-               totalExpensesValue += Number(expense.amount);
-           }
-       })
+    const [editableAmount, setEditableAmount] = useState(selectedExpense?.amount.toString);
+    const [isEditing, setIsEditing] = useState(false);
+
+    function setTotals() {
+        let totalIncomeValue = 0;
+        let totalExpensesValue = 0;
+        myExpenses.map((expense: ExpensesModel) => {
+            if (expense.type === 'income') {
+                totalIncomeValue += Number(expense.amount);
+            } else {
+                totalExpensesValue += Number(expense.amount);
+            }
+        })
         setTotalIncome(totalIncomeValue);
         setTotalExpenses(totalExpensesValue);
         setBalance(totalIncomeValue - totalExpensesValue);
     }
+
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -87,12 +93,16 @@ export default function Tab() {
             setAmount((prev) => prev + value);
         }
     };
+    const openUpdateModal = (expense : ExpensesModel)=>{
+        setSelectedExpense(expense);
+        setEditableAmount(expense.amount.toString())
+        setUpdateModalVisible(true)
+    }
 
     useEffect(() => {
         // @ts-ignore
         // dispatch(addExpense(expenses[0]))
         let newLocations = [0];
-        let totalIncome = 0;
         setTotals()
 
         if (balance > 0) {
@@ -150,18 +160,26 @@ export default function Tab() {
                         <Text style={styles.expenseText}>⬇ {totalExpenses.toFixed(2).toString()}</Text>
                     </View>
                 </View>
-                {myExpenses.map((expense:any,index:number) => (
-                    <View key={index} style={styles.expenseItem}>
-                        <View style={styles.iconContainer}>
-                            {expense.icon ? (
-                                <AntDesign name={expense.icon as any} size={28} color={expense.type == 'expenses' ? 'red' : 'blue'}/>
-                            ) : (
-                                <View style={styles.placeholderIcon}/>
-                            )}
+                {myExpenses.map((expense: ExpensesModel, index: number) => (
+                    <TouchableOpacity
+                        key={index}
+                        onPress={()=>{
+                            openUpdateModal(expense)
+                        }}
+                    >
+                        <View  style={styles.expenseItem}>
+                            <View style={styles.iconContainer}>
+                                {expense.icon ? (
+                                    <AntDesign name={expense.icon as any} size={28}
+                                               color={expense.type == 'expenses' ? 'red' : 'blue'}/>
+                                ) : (
+                                    <View style={styles.placeholderIcon}/>
+                                )}
+                            </View>
+                            <Text style={styles.expenseName}>{expense.name}</Text>
+                            <Text style={styles.expenseAmount}>{expense.amount}</Text>
                         </View>
-                        <Text style={styles.expenseName}>{expense.name}</Text>
-                        <Text style={styles.expenseAmount}>{expense.amount}</Text>
-                    </View>
+                    </TouchableOpacity>
                 ))}
             </ScrollView>
             <TouchableOpacity
@@ -267,12 +285,77 @@ export default function Tab() {
                             ))}
                             <TouchableOpacity style={styles.actionKey} onPress={async () => {
                                 setKeyBoardOpen(false)
-                                const  model = new ExpensesModel("1",selectedCategory.name,amount,new Date().toString(),selectedCategory.icon,selectedTab);
+                                const model = new ExpensesModel("1", selectedCategory.name, amount, new Date().toString(), selectedCategory.icon, selectedTab);
                                 dispatch(addExpense(model));
                             }}>
                                 <Text style={styles.actionText}>✔</Text>
                             </TouchableOpacity>
                         </View>
+                    </View>
+                </View>
+            </Modal>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isUpdateModalVisible}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer2}>
+                        {/* Delete Icon */}
+                        <TouchableOpacity style={styles.deleteIcon}>
+                            <AntDesign name="delete" size={24} color="red" />
+                        </TouchableOpacity>
+
+                        {/* Expense Details */}
+                        {selectedExpense &&
+                            <View style={styles.detailsContainer}>
+                                {/* Icon & Name */}
+                                <View style={styles.header2}>
+                                    <View style={styles.iconWrapper}>
+                                        <AntDesign name="pluscircle" size={30} color="#FF6F61" />
+                                    </View>
+                                    <Text style={styles.expenseTitle}>{selectedExpense.name}</Text>
+                                </View>
+
+                                {/* Details */}
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Category</Text>
+                                    <Text style={styles.value}>{selectedExpense.type}</Text>
+                                </View>
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Money</Text>
+                                    {isEditing ? (
+                                        <TextInput
+                                            style={styles.expenseTitleInput}
+                                            value={editableAmount}
+                                            onChangeText={setEditableAmount}
+                                            autoFocus={true}
+                                            onBlur={() => setIsEditing(false)}
+                                        />
+                                    ) : (
+                                        <TouchableOpacity onPress={() => setIsEditing(true)}>
+                                            <Text style={styles.expenseTitle}>{editableAmount}</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Date</Text>
+                                    <Text style={styles.value}>{format(selectedExpense.date, "Y/M/d")}</Text>
+                                </View>
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Memo</Text>
+                                    <Text style={styles.value}>{selectedExpense.name}</Text>
+                                </View>
+                            </View>
+                        }
+
+
+                        {/* Update Button */}
+                        <TouchableOpacity style={styles.updateButton} onPress={()=>{
+                            setUpdateModalVisible(false)
+                        }}>
+                            <Text style={styles.updateButtonText}>Update</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -286,6 +369,78 @@ export default function Tab() {
 }
 
 const styles = StyleSheet.create({
+    expenseTitleInput: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#333",
+        borderBottomWidth: 1,
+        borderBottomColor: "#aaa",
+        paddingVertical: 5,
+    },
+    modalContainer2: {
+        width: "100%",
+        height: "90%",
+        backgroundColor: "#fff",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 20,
+        alignItems: "center",
+    },
+    deleteIcon: {
+        position: "absolute",
+        top: 20,
+        right: 20,
+    },
+    detailsContainer: {
+        width: "100%",
+        alignItems: "center",
+        marginTop: 40,
+    },
+    header2: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 20,
+    },
+    iconWrapper: {
+        backgroundColor: "#FF6F61",
+        padding: 10,
+        borderRadius: 50,
+        marginRight: 10,
+    },
+    expenseTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    infoRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: "#eee",
+    },
+    label: {
+        fontSize: 16,
+        color: "gray",
+    },
+    value: {
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    updateButton: {
+        width: "100%",
+        backgroundColor: "#FFB100",
+        paddingVertical: 12,
+        borderRadius: 10,
+        marginTop: 30,
+        alignItems: "center",
+    },
+    updateButtonText: {
+        color: "#fff",
+        fontSize: 18,
+        fontWeight: "bold",
+    },
     modalOverlay: {
         flex: 1,
         backgroundColor: "rgba(0, 0, 0, 0.5)",
