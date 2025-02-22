@@ -7,7 +7,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {format} from "date-fns";
 import {useDispatch, useSelector} from "react-redux";
 import ExpensesModel from "../../model/ExpensesModel";
-import {addExpense} from "../../slices/ExpensesSlices";
+import {addExpense, updateExpense} from "../../slices/ExpensesSlices";
 
 export default function Tab() {
     const myExpenses: ExpensesModel[] = useSelector((state: any) => state.expenses);
@@ -312,7 +312,12 @@ export default function Tab() {
                                 {/* Icon & Name */}
                                 <View style={styles.header2}>
                                     <View style={styles.iconWrapper}>
-                                        <AntDesign name="pluscircle" size={30} color="#FF6F61" />
+                                        {selectedExpense.icon ? (
+                                            <AntDesign name={selectedExpense.icon as any} size={28}
+                                                       color={selectedExpense.type == 'expenses' ? 'red' : 'blue'}/>
+                                        ) : (
+                                            <View style={styles.placeholderIcon}/>
+                                        )}
                                     </View>
                                     <Text style={styles.expenseTitle}>{selectedExpense.name}</Text>
                                 </View>
@@ -352,6 +357,9 @@ export default function Tab() {
 
                         {/* Update Button */}
                         <TouchableOpacity style={styles.updateButton} onPress={()=>{
+                            // @ts-ignore
+                            const model = new ExpensesModel(selectedExpense?.expense_id,selectedExpense?.name,editableAmount,selectedExpense?.date,selectedExpense?.icon,selectedExpense?.type);
+                            dispatch(updateExpense(model));
                             setUpdateModalVisible(false)
                         }}>
                             <Text style={styles.updateButtonText}>Update</Text>
@@ -402,7 +410,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     iconWrapper: {
-        backgroundColor: "#FF6F61",
+        backgroundColor: "white",
         padding: 10,
         borderRadius: 50,
         marginRight: 10,
