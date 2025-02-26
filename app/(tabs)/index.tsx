@@ -7,11 +7,14 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {format} from "date-fns";
 import {useDispatch, useSelector} from "react-redux";
 import ExpensesModel from "../../model/ExpensesModel";
-import {addExpense, deleteExpense, updateExpense} from "../../slices/ExpensesSlices";
+import UserModel from "../../model/UserModel";
+import {AppDispatch} from "../../store/Store";
+import {deleteExpenses, getExpenses, saveExpenses, updateExpenses} from "../../slices/ExpensesSlices";
 
 export default function Tab() {
     const myExpenses: ExpensesModel[] = useSelector((state: any) => state.expenses);
-    const dispatch = useDispatch();
+    const user :UserModel[] = useSelector((state:any)=>state.user)
+    const dispatch = useDispatch<AppDispatch>();
     const [balance, setBalance] = useState(0);
     const [locations, setLocations] = useState([0, 0.7]);
     const [totalIncome, setTotalIncome] = useState(0);
@@ -100,8 +103,9 @@ export default function Tab() {
     }
 
     useEffect(() => {
-        // @ts-ignore
-        // dispatch(addExpense(expenses[0]))
+        if (myExpenses.length == 0){
+            dispatch(getExpenses(user[0].email))
+        }
         let newLocations = [0];
         setTotals()
 
@@ -285,8 +289,9 @@ export default function Tab() {
                             ))}
                             <TouchableOpacity style={styles.actionKey} onPress={async () => {
                                 setKeyBoardOpen(false)
-                                const model = new ExpensesModel("1", selectedCategory.name, amount, new Date().toString(), selectedCategory.icon, selectedTab);
-                                dispatch(addExpense(model));
+                                const model = new ExpensesModel("1", selectedCategory.name, amount, new Date().toString(), selectedCategory.icon, selectedTab,user[0].email);
+
+                                dispatch(saveExpenses(model));
                             }}>
                                 <Text style={styles.actionText}>✔</Text>
                             </TouchableOpacity>
@@ -304,8 +309,8 @@ export default function Tab() {
                         {/* Delete Icon */}
                         <TouchableOpacity style={styles.deleteIcon} onPress={()=>{
                             // @ts-ignore
-                            dispatch(deleteExpense(new ExpensesModel(selectedExpense?.expense_id,'','','','','')));
-                            console.log(myExpenses)
+                            dispatch(deleteExpenses(selectedExpense?.expense_id));
+                            console.log(selectedExpense?.expense_id)
                             setUpdateModalVisible(false)
                         }}>
                             <AntDesign name="delete" size={24} color="red" />
@@ -364,7 +369,7 @@ export default function Tab() {
                         <TouchableOpacity style={styles.updateButton} onPress={()=>{
                             // @ts-ignore
                             const model = new ExpensesModel(selectedExpense?.expense_id,selectedExpense?.name,editableAmount,selectedExpense?.date,selectedExpense?.icon,selectedExpense?.type);
-                            dispatch(updateExpense(model));
+                            dispatch(updateExpenses(model));
                             setUpdateModalVisible(false)
                         }}>
                             <Text style={styles.updateButtonText}>Update</Text>

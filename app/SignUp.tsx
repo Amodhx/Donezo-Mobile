@@ -20,7 +20,7 @@ const SignUpForm: React.FC = () => {
 
     const handleSignUp = async () => {
         const model = new UserModel('',name,email,password)
-        const response : any = await Api_call.postApiCallWithOutToken('',model)
+        const response : any = await Api_call.postApiCallWithOutToken('/auth/signUp',model)
         if (response.status == 201){
             await saveToken(response.data);
             dispatch(addUser(model))
