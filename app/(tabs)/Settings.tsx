@@ -1,20 +1,36 @@
 import React, { useState } from "react";
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert} from "react-native";
 import {removeToken} from "../../services/TokenService";
 import {useRouter} from "expo-router";
 import RNRestart from 'react-native-restart';
+import Api_call from "../../services/ApiCall";
+import UserModel from "../../model/UserModel";
+import {useSelector} from "react-redux";
 
 export default function Tab() {
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [isModalOpen,setModalOpen] = useState<boolean>(false)
     const router = useRouter();
+    const user : UserModel[] = useSelector((state:any)=>state.user);
 
     const toggleModal = ()=>{
         setModalOpen(!isModalOpen)
     }
-    const onSave = (currentPassword:string,newPassword:string)=>{
-        console.log("currentPassword : "+currentPassword + "NEW PASSWORD : ")
+    const onSave = async (currentPassword: string, newPassword: string) => {
+        console.log("currentPassword : " + currentPassword + "NEW PASSWORD : ")
+        const response: any = await Api_call.postApiCallWithToken('/auth/forgotPassword',new UserModel(
+            user[0].user_id,
+            user[0].full_name,
+            user[0].email,
+            newPassword
+            ))
+        if (response.status === 201){
+            Alert.alert("Password Changed!")
+            toggleModal()
+        }else {
+            Alert.alert("Cant change password")
+        }
     }
     return (
         <View style={styles.container}>
