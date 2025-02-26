@@ -1,8 +1,14 @@
 import React, {useState} from "react";
-import {View, Text, StyleSheet, TouchableOpacity, Image} from "react-native";
+import {View, Text, StyleSheet, TouchableOpacity, Image, Alert} from "react-native";
 import {TextInput, Button} from "react-native-paper";
 import {LinearGradient} from "expo-linear-gradient";
 import {Stack, useRouter} from "expo-router";
+import Api_call from "../services/ApiCall";
+import UserModel from "../model/UserModel";
+import {saveToken} from "../services/TokenService";
+import {addUser} from "../slices/UserSlices";
+import {useDispatch} from "react-redux";
+import {AppDispatch} from "../store/Store";
 
 const SignUpForm: React.FC = () => {
     const router = useRouter();
@@ -10,10 +16,18 @@ const SignUpForm: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const dispatch = useDispatch<AppDispatch>();
 
-    const handleSignUp = () => {
-        console.log("Signing up with:", name, email, password, confirmPassword);
-        router.replace("/(tabs)");
+    const handleSignUp = async () => {
+        const model = new UserModel('',name,email,password)
+        const response : any = await Api_call.postApiCallWithOutToken('',model)
+        if (response.status == 201){
+            await saveToken(response.data);
+            dispatch(addUser(model))
+            router.replace("/(tabs)");
+        }else {
+            Alert.alert("Cant Sign Up Now. try again later!!")
+        }
     };
 
     return (

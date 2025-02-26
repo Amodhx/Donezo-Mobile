@@ -1,17 +1,32 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity,Image  } from "react-native";
+import React, {useEffect, useState} from "react";
+import {View, Text, StyleSheet, TouchableOpacity, Image, Alert} from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import {useRouter} from "expo-router";
+import UserModel from "../model/UserModel";
+import Api_call from "../services/ApiCall";
+import {AppDispatch} from "../store/Store";
+import {useDispatch} from "react-redux";
+import {addUser} from "../slices/UserSlices";
+import {saveToken} from "../services/TokenService";
 
 const LoginForm: React.FC = () => {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const dispatch = useDispatch<AppDispatch>();
 
-    const handleLogin = () => {
-        console.log("Logging in with:", email, password);
-        router.replace("/(tabs)");
+    const handleLogin = async () => {
+        const model = new UserModel('','',email,password)
+        const response:any = await Api_call.postApiCallWithOutToken('/auth/signIn',model);
+        if (response.status == 201){
+            await saveToken(response.data);
+            dispatch(addUser(model))
+            router.replace("/(tabs)");
+        }else {
+            Alert.alert("INVALID CREDENTIALS!!! ")
+        }
+
     };
 
     const handleSignUp = ()=>{

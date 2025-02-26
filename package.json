@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^4.1.0",
     "@react-navigation/drawer": "^7.1.1",
     "@reduxjs/toolkit": "^2.5.1",
+    "axios": "^1.7.9",
     "date-fns": "^4.1.0",
     "expo": "~52.0.37",
     "expo-linear-gradient": "^14.0.2",
@@ -29,7 +30,9 @@
     "react-native-reanimated": "~3.16.1",
     "react-native-web": "~0.19.13",
     "react-redux": "^9.2.0",
-    "yup": "^1.6.1"
+    "yup": "^1.6.1",
+    "expo-secure-store": "~14.0.1",
+    "@react-native-async-storage/async-storage": "1.23.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

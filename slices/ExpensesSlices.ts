@@ -1,8 +1,17 @@
 import ExpensesModel from "../model/ExpensesModel";
-import {createSlice} from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 
 export const initialState : ExpensesModel[] = []
+export const getExpenses = createAsyncThunk(
+    'expenses/getExpenses',
+    async ()=>{
+        try {
 
+        }catch (err) {
+            console.log(err);
+        }
+    }
+)
 const ExpensesSlice = createSlice({
     name : 'expenses',
     initialState : initialState,
