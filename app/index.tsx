@@ -8,12 +8,13 @@ import Api_call from "../services/ApiCall";
 import {AppDispatch} from "../store/Store";
 import {useDispatch} from "react-redux";
 import {addUser} from "../slices/UserSlices";
-import {saveToken} from "../services/TokenService";
+import {getToken, saveToken} from "../services/TokenService";
 
 const LoginForm: React.FC = () => {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(true);
     const dispatch = useDispatch<AppDispatch>();
 
     const handleLogin = async () => {
