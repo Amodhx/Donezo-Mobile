@@ -2,7 +2,7 @@ import axios from "axios";
 import {getToken} from "./TokenService";
 
 class ApiCall{
-    base_url = 'http://192.168.8.158:3000/api/v1'
+    base_url = 'http://172.20.10.4:3000/api/v1'
     api = axios.create({
         baseURL : this.base_url
     })
