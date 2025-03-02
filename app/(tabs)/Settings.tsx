@@ -147,7 +147,7 @@ export default function Tab() {
                 <View style={styles.actionButtons}>
                     <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={handleEditProfile}
+                        onPress={toggleModal}
                     >
                         <Ionicons name="create-outline" size={22} color="#6200ee" />
                         <Text style={styles.actionButtonText}>Edit Profile</Text>
@@ -280,6 +280,50 @@ export default function Tab() {
 
                 <Text style={styles.versionText}>Notes App v1.0.0</Text>
             </ScrollView>
+            <Modal
+
+                animationType="slide" transparent={true} visible={isModalOpen}>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>Change Password</Text>
+
+                        {/* Current Password */}
+                        <Text style={styles.label}>Current Password</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter current password"
+                            secureTextEntry={true}
+                            value={currentPassword}
+                            onChangeText={setCurrentPassword}
+                        />
+
+                        {/* New Password */}
+                        <Text style={styles.label}>New Password</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter new password"
+                            secureTextEntry={true}
+                            value={newPassword}
+                            onChangeText={setNewPassword}
+                        />
+
+                        {/* Buttons */}
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity style={styles.cancelButton} onPress={() =>{
+                                toggleModal()
+                            }}>
+                                <Text style={styles.buttonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.saveButton}
+                                onPress={() => onSave(currentPassword, newPassword)}
+                            >
+                                <Text style={styles.buttonText}>Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
 
     );
